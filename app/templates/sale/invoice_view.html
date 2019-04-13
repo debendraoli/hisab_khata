@@ -1,0 +1,209 @@
+{% extends 'dashboard.html' %}
+{% block dashboard_contents %}
+<div class="card">
+<h4 class="card-header">Edit Invoice</h4>
+<div class="card-body">
+<form id="form">
+<div class="form-row">
+<div class="form-group col-md-3">
+<label for="warehouse">Warehouse</label>
+<select id="warehouse" class="form-control" required>
+<option value="">Select</option>
+{% for warehouse in warehouses %}
+    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="form-group col-md-3">
+<label for="products">Product</label>
+<select id="products" class="form-control" required>
+<option value="">Select</option>
+</select>
+</div></div>
+<div class="form-group">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="is_wholesale">
+      <label class="form-check-label" for="is_wholesale">
+        Wholesale
+      </label>
+    </div>
+  </div>
+<button type="submit" class="btn btn-space btn-primary">Add</button>
+</form>
+    <div class="table-responsive-sm">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="center">#</th>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th class="right">Unit Cost</th>
+                        <th class="center">Qty</th>
+                        <th class="right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for invoiced_item in invoiced_items %}
+                    <tr>
+                        <td class="center">{{ loop.index }}</td>
+                        <td class="left strong">{{ invoiced_item.item.name }}</td>
+                        <td class="left">
+                            {% if invoiced_item.item.color %} Color: {{ invoiced_item.item.color }}{% endif %}
+                            {% if invoiced_item.item.size %} Size: {{ invoiced_item.item.size }}{% endif %}
+                            {% if invoiced_item.item.model %} Model: {{ invoiced_item.item.model }}{% endif %}
+                        </td>
+                        <td class="right">
+                        {% with price = invoiced_item.item.wholsesale_price if invoiced_item.is_wholesale else invoiced_item.item.retail_price %}
+                        {{ price }}
+                        </td>
+                        <td class="center"><div class="quantity"><input type="number" step="1" value="{{ invoiced_item.quantity }}"></div></td>
+                        <td class="right">{{ invoiced_item.quantity * price}}</td>
+                    {% endwith %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-sm-5">
+            </div>
+            <div class="col-lg-4 col-sm-5 ml-auto">
+                <table class="table table-clear">
+                    <tbody>
+                        <tr>
+                            <td class="left">
+                                <strong class="text-dark">Subtotal</strong>
+                            </td>
+                            <td id="subtotal" class="right">0</td>
+                        </tr>
+                        <!--<tr>
+                            <td class="left">
+                                <strong class="text-dark">Discount (20%)</strong>
+                            </td>
+                            <td class="right">$5,761,00</td>
+                        </tr>
+                        <tr>
+                            <td class="left">
+                                <strong class="text-dark">VAT (10%)</strong>
+                            </td>
+                            <td class="right">$2,304,00</td>
+                        </tr>-->
+                        <tr>
+                            <td class="left">
+                                <strong class="text-dark">Total</strong>
+                            </td>
+                            <td class="right">
+                                <strong class="text-dark" id="total">0</strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<div class="text-right">
+                <div class="col col-sm-10 col-lg-9 offset-sm-1 offset-lg-3">
+                    <a class="btn disabled btn-space btn-primary" href="#" onclick="modalAjax('{{ url_for('sale.set_customer', type='invoice') }}')">Add customer</a>
+                </div>
+            </div>
+    <div class="card-footer bg-white">
+        <p class="mb-0">Address</p>
+    </div>
+</div>
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+    <script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+    <script>
+    jQuery(function () {
+    let form = $('#form');
+    form.parsley();
+        $('#warehouse').change(function () {
+            let warehouse = $('#warehouse').val();
+            $.ajax({
+                url: '/inventory/item/warehouse/' + warehouse,
+                type: 'POST',
+                success: function (data) {
+                    $('#products').empty();
+                    $.each(data, function (key, val) {
+                        $('#products').append('<option value="' + val.name + '" data-retail_price="' + val.retail_price + '" data-wholesale_price="' + val.wholesale_price + '" data-description="' + val.description + '">' + val.name + '</option>');
+                    });
+                }
+            });
+        });
+
+        jQuery('<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>').insertAfter('.quantity input');
+        var last_row_num = 1;
+            form.submit(function (e) {
+                e.preventDefault();
+                var subtotal = parseInt(jQuery('#subtotal').text());
+                let product = jQuery('#products option:selected');
+                var price = product.data('retail_price');
+                let description = product.data('description');
+                if (jQuery('#is_wholesale').is(':checked')) {
+                    var price = product.data('wholesale_price');
+                }
+                let new_tr = '<tr><td class="center"></td><td class="left strong"></td><td class="left"></td><td class="right"></td> <td class="center"><div class="quantity"><input type="number" step="1" value="1"></div></td><td class="right"></td></tr>';
+                $('table.table-striped tr:last').after(new_tr);
+                $('table.table-striped tr:last').find('td:nth-child(2)').text(jQuery('#products').val());
+                $('table.table-striped tr:last').find('td:nth-child(1)').text(last_row_num);
+                $('table.table-striped tr:last').find('td:nth-child(4)').text(price);
+                $('table.table-striped tr:last').find('td:nth-child(3)').text(description);
+                $('table.table-striped tr:last').find('td:last').text(price);
+                jQuery('#subtotal').text(price+subtotal);
+                jQuery('#total').text(subtotal+price);
+                if (last_row_num === 1) {
+                    jQuery('a.disabled').removeClass('disabled');
+                }
+                jQuery('#form').trigger('reset');
+                last_row_num++;
+                jQuery('<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>').insertAfter('.quantity input');
+                jQuery('.quantity').each(function(e) {
+                    var spinner = jQuery(this),
+                    input = spinner.find('input[type="number"]'),
+                    btnUp = spinner.find('.quantity-up'),
+                    btnDown = spinner.find('.quantity-down'),
+                    min = input.attr('min'),
+                    max = input.attr('max');
+                btnUp.click(function () {
+                    var oldValue = parseFloat(input.val());
+                    if (oldValue >= max) {
+                        var newVal = oldValue;
+                    } else {
+                        var newVal = oldValue + 1;
+                    }
+                    spinner.find("input").val(newVal);
+                    spinner.find("input").trigger("change");
+                    let unit_cost = spinner.closest('tr').find('td:nth-child(4)').text();
+                    spinner.closest('tr').find('td:last').text(newVal * unit_cost);
+                    jQuery('#subtotal').text(subtotal + newVal * unit_cost);
+                    jQuery('#total').text(subtotal + newVal * unit_cost);
+                    e.preventDefault();
+                });
+
+                btnDown.click(function () {
+                    var oldValue = parseFloat(input.val());
+                    if (oldValue <= min) {
+                        var newVal = oldValue;
+                    } else {
+                        var newVal = oldValue - 1;
+                    }
+                    if (newVal === 0) {
+                        spinner.closest('tr').remove()
+                    }
+                    spinner.find("input").val(newVal);
+                    spinner.find("input").trigger("change");
+                    let unit_cost = spinner.closest('tr').find('td:nth-child(4)').text();
+                    spinner.closest('tr').find('td:last').text(newVal * unit_cost);
+                    jQuery('#subtotal').text(subtotal + newVal * unit_cost);
+                    jQuery('#total').text(subtotal + newVal * unit_cost);
+                    e.preventDefault();
+                });
+            });
+                });
+
+             });
+    </script>
+{% endblock %}
+

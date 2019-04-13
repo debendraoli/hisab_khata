@@ -1,0 +1,116 @@
+{% extends 'dashboard.html' %}
+
+{% block dashboard_breadcrumbs %}
+<div class="page-header-tools">
+    <button type="button" class="btn btn-gradient-01" data-toggle="modal" data-target="#modal-add-note">Add Note</button>
+    </div>
+{% endblock dashboard_breadcrumbs %}
+{% block dashboard_content %}
+    <div class="row">
+    {% for note in context.items %}
+        <div class="col-xl-6">
+            <div class="widget has-shadow">
+                <div class="widget-header bordered no-actions d-flex align-items-center">
+                    <h4>{{ note.title }}</h4>
+                                    </div>
+                                    <div class="widget-body">
+                                        <div class="basic-scroll pr-2 pl-2" style="height:300px;">
+                                            <p>{{ note.content }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+    {% endfor %}
+</div>
+
+
+    <div id="modal-add-note" class="modal fade">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Note</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="submit-note" method="post" action="{{ url_for('notes') }} ">
+                            <div class="form-group">
+                                <label for="title" class="form-control-label">Title<span class="text-danger ml-2">*</span></label>
+                                <input id="title" class="form-control" type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="content" class="form-control-label">Content<span class="text-danger ml-2">*</span></label>
+                                <textarea id="content" class="form-control" name="content" rows="4" cols="50" required></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+                    </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    <div id="delay-modal" class="modal fade">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="sa-icon sa-success animate" style="display: block;">
+                            <span class="sa-line sa-tip animateSuccessTip"></span>
+                            <span class="sa-line sa-long animateSuccessLong"></span>
+                            <div class="sa-placeholder"></div>
+                            <div class="sa-fix"></div>
+                        </div>
+                        <div class="section-title mt-5 mb-2">
+                            <h2 class="text-gradient-01"></h2>
+                        </div>
+                        <p class="mb-5"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendors/js/nicescroll/nicescroll.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendors/js/app/app.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/scrollable/scrollable.min.js') }}"></script>
+    <script>
+    $("#submit-note").submit(function(e) {
+        let data = {
+            'title': $('#title').val(),
+            'content': $('#content').val()
+        };
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('notes') }}",
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(result) {
+                $("#modal-add-note").modal("toggle");
+                $(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Note Added!');
+                $(".modal-body.text-center > p").text('Note has been added successfully..');
+                $('#delay-modal').modal('show');
+
+            },
+            error: function(result) {
+                //if request unsuccessful
+                $(".text-gradient-01").text('Note adding Failed!');
+                $(".modal-body.text-center > p").text('Something Went wrong.');
+                $('#delay-modal').modal('show');
+            }
+            }).done(function() {
+               //location.reload();
+            //finally, reinitialise modal text back to default
+            //$(".text-gradient-02").text('Note adfded!');
+            });
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            });
+</script>
+{% endblock scripts %}

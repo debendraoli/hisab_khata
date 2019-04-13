@@ -1,0 +1,11 @@
+# Python runtime files and libraries
+venv/
+__pycache__/
+*.pyc
+
+# IDE files
+.idea
+
+# dev configuration and migrations
+migrations/
+/config.py

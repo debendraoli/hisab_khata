@@ -1,0 +1,120 @@
+{% extends '/dashboard.html' %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/buttons.bootstrap4.css') }}">
+{% endblock stylesheets %}
+{% block dashboard_contents %}
+<div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="card">
+                                <div class="card-header">
+                                    <a href="#" onclick="modalAjax('{{ url_for('people.customer_add') }}', 'GET')"><i class="fas fa-plus"></i></a>
+                                    <a class="float-right" href="#" onclick="reload_table(customer_table)"><i class="fas fa-sync-alt"></i></a>
+                                </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="customer" class="table table-striped table-bordered second" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Address</th>
+                                                <th>Phone</th>
+                                                <th>Email</th>
+                                                <th>Last Order</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/buttons.bootstrap4.min.js') }}"></script>
+
+<script>
+customer_table= null;
+    $(function () {
+        'use strict';
+            customer_table = $('#customer').DataTable({
+            "ajax": {
+                "url": "{{ url_for('people.customer') }}",
+            },
+            "columns": [
+                {
+                    data: "id",
+                    orderable: false,
+                },
+                {
+                    "data": "name",
+                    "searchable": false
+                },
+                {
+                    "data": "status",
+                    "orderable": true,
+                    "searchable": false,
+                    render: function (data) {
+                        if (data) {
+                            return '<span class="badge badge-pill badge-success">Active</div>';
+                        } else {
+                            return '<span class="badge badge-pill badge-danger">Inactive</div>';
+                        }
+                    }
+                },
+
+                {
+                    "data": "address",
+                    "searchable": false
+                },
+                {
+                    "data": "phone",
+                    "orderable": false,
+                    "searchable": false
+                },
+
+                {
+                    "data": "email",
+                    "orderable": false,
+                    "searchable": false
+                },
+                {
+                    "data": "last_order",
+                    "orderable": false,
+                    "searchable": false,
+                    render: function (data) {
+                        return '<a href="/order/view/' + data + ']/">' + data + '</a>';
+                    }
+                }
+        ],
+            "columnDefs": [
+                {
+                    "targets": [7],
+                    "data": null,
+                    "className": "action-link",
+                    "render": function (data, type, full) {
+                        return '<a class="edit" href="#" onclick=modalAjax("/people/customer/edit/' + data.id + '")>' +
+                            '<i class="fas fa-edit"></i></a><a class="delete" href="#" onclick=deleteAjax("/people/customer/edit/' + data.id+'",customer_table)><i class="fas fa-times"></i></a>';
+                    }
+    }
+ ],
+                "initComplete": function(settings, json) {
+                    customer_table.buttons().container()
+                .appendTo('#customer_wrapper .col-md-6:eq(0)');
+                }
+            });
+
+});
+
+
+</script>
+{% endblock scripts %}

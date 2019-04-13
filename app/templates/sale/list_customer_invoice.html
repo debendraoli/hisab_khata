@@ -1,0 +1,164 @@
+<form>
+<div class="form-group">
+<label for="customer_type">Type<span class="text-danger ml-2">*</span></label>
+<select id="customer_type" class="form-control custom-select" required>
+    <option value="">Select</option>
+    <option value="1">Existing Customer</option>
+    <option value="2">New Customer</option>
+</select>
+</div>
+</form>
+<form id="customer-selection" style="display: none">
+    <div class="form-group">
+<label for="customers-list">Customer<span class="text-danger ml-2">*</span></label>
+<select id="customers-list" class="form-control custom-select" required>
+</select>
+    </div>
+</form>
+
+<form id="customer-add" style="display: none">
+
+<div class="form-group row">
+<div class="col">
+<label for="name">Name<span class="text-danger ml-2">*</span></label>
+<input id="name" type="text" value="" class="form-control" required>
+</div>
+<div class="col">
+<label for="address">Address<span class="text-danger ml-2">*</span></label>
+<input id="address" type="text" value="" class="form-control" required>
+</div>
+    </div>
+
+    <div class="form-group row">
+<div class="col">
+<label for="email">Email</label>
+<input id="email" type="email" value="" class="form-control">
+</div>
+<div class="col">
+<label for="phone">Phone<span class="text-danger ml-2">*</span></label>
+<input id="phone" type="number" value="" class="form-control" required>
+</div>
+    </div>
+
+<div class="form-group">
+<label for="notes">Notes</label>
+    <textarea id="notes" class="form-control" rows="4"></textarea>
+</div>
+    </form>
+<div class="modal-footer">
+<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+<button type="button" id="submit" class="btn btn-primary">Submit</button>
+</div>
+
+<script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+<script>
+    jQuery(function () {
+        let customer_type = jQuery('#customer_type');
+        let customer_form = jQuery('#customer-selection');
+        let customer_add_form = jQuery('#customer-add');
+        let customers = jQuery('#customers-list');
+        customer_type.change(function () {
+            if (customer_type.val() === '1') {
+                customer_form.show(400);
+                customer_add_form.hide(300);
+                $.ajax({
+                    url: '{{ url_for('people.customer_list') }}',
+                    type: 'POST',
+                    success: function (data) {
+                        customers.empty();
+                        $.each(data, function (key, val) {
+                            customers.append('<option value="' + val.id + '">' + val.name + '</option>');
+                        });
+                    }
+                });
+            } else if (customer_type.val() === '2') {
+                customer_form.hide(400);
+                customer_add_form.show(300);
+            }
+
+        });
+
+        jQuery('#submit').click(function () {
+            if (customer_type.val() === '1') {
+                jQuery('#modal-form').modal('toggle');
+                return gather_table_data(customers.val())
+            }
+            let data = {
+                "name": $('#name').val(),
+                "address": $('#address').val(),
+                "phone": $('#phone').val(),
+                "email": $('#email').val(),
+                "notes": $('#notes').val()
+            };
+            $.ajax({
+                url: "{{ url_for('people.customer_add') }}",
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                success: function (data) {
+                    jQuery(".modal-body.text-center > p").text(data.message);
+                    if (data.status) {
+                        localStorage.setItem('customer_id', data.customer_id);
+                        jQuery('#modal-form').modal('toggle');
+                        jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Success!');
+                        jQuery('#delay-modal').modal('show');
+                        jQuery(".modal").on("hidden.bs.modal", function () {
+                            jQuery('#modal-form').modal('toggle');
+                            return gather_table_data(data.customer_id)
+                        });
+                    } else {
+                        jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                        jQuery('#delay-modal').modal('show');
+                    }
+                },
+                error: function () {
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                    jQuery(".modal-body.text-center > p").text(data.message);
+                }
+            }).done(function () {
+            });
+        });
+       function gather_table_data(customer_id) {
+           jQuery('table.table-striped tbody').find('tr:first').remove();
+           let data = [];
+           jQuery('table.table-striped > tbody > tr').each(function (i) {
+               let product = $(this).find('td:nth-child(2)').text();
+               let quantity = $(this).find('td:nth-child(5) :input').val();
+               let price = $(this).find('td:nth-child(4)').text();
+               data[i] =
+                   {
+                       'product': product,
+                       'quantity': quantity,
+                       'price': price,
+                   };
+           });
+           if (Object.keys(data).length !== 0) {
+               jQuery('.loading').show(300);
+               $.ajax({
+                   url: "{{ url_for('sale.invoice_add') }}",
+                   type: 'POST',
+                   contentType: 'application/json',
+                   dataType: 'json',
+                   data: JSON.stringify(data),
+                   headers: ({'CUSTOMER': customer_id}),
+                   success: function (data) {
+                       if (data.status) {
+                           location.replace('/sale/invoice/print/' + data.invoice_id);
+                       } else {
+                           $("#delay-modal .section-title.mt-5.mb-2 > h2.text-gradient-01").text('Order failed');
+                           $("#delay-modal .modal-body.text-center > p").text(data.message);
+                           $('#delay-modal').modal('show');
+
+                       }
+                   },
+                   complete: function () {
+                       jQuery('.loading').hide();
+
+                   }
+               });
+           }
+       }
+        });
+
+</script>

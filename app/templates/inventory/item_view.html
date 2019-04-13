@@ -1,0 +1,62 @@
+    <div class="card">
+        <div class="card-header pills-regular">
+            <ul class="nav nav-pills card-header-pills justify-content-center" id="myTab2" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="card-pills-1" data-toggle="tab" href="#card-pill-1" role="tab" aria-controls="card-1" aria-selected="true">Additional Info</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="card-pills-2" data-toggle="tab" href="#card-pill-2" role="tab" aria-controls="card-2" aria-selected="false">Inventory</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent2">
+                <div class="tab-pane fade show active" id="card-pill-1" role="tabpanel" aria-labelledby="card-tab-1">
+                  <ul class="list-group">
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Supplier</h5>
+                          <span class="text">{{ data.supplier }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Cost Price</h5>
+                          <span class="text">{{ data.cost_price }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Wholesale Price</h5>
+                          <span class="text">{{ data.wholesale_price }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Retail Price</h5>
+                          <span class="text">{{ data.retail_price }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Size</h5>
+                          <span class="text">{{ data.size }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Color</h5>
+                          <span class="text">{{ data.color }}</span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <h5 class="mb-1">Model</h5>
+                          <span class="text">{{ data.model }}</span>
+                      </li>
+
+                  </ul>
+                </div>
+                <div class="tab-pane fade" id="card-pill-2" role="tabpanel" aria-labelledby="card-tab-2">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        jQuery('#modal-form .modal-title').text("{{ data.name }}")
+    </script>

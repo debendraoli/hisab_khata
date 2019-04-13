@@ -1,0 +1,75 @@
+<form id="addInstance" action="">
+<div class="form-group row">
+<div class="col">
+<label for="name">Name<span class="text-danger ml-2">*</span></label>
+<input id="name" type="text" value="" class="form-control" required>
+</div>
+<div class="col">
+<label for="address">Address<span class="text-danger ml-2">*</span></label>
+<input id="address" type="text" value="" class="form-control" required>
+</div>
+    </div>
+
+    <div class="form-group row">
+<div class="col">
+<label for="email">Email</label>
+<input id="email" type="email" value="" class="form-control">
+</div>
+<div class="col">
+<label for="phone">Phone<span class="text-danger ml-2">*</span></label>
+<input id="phone" type="number" value="" class="form-control" required>
+</div>
+    </div>
+
+<div class="form-group">
+<label for="notes">Notes</label>
+    <textarea id="notes" class="form-control" rows="4"></textarea>
+</div>
+
+<div class="modal-footer">
+<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+
+<script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+<script>
+    jQuery(function () {
+    let addInstance = jQuery('#addInstance');
+    addInstance.parsley();
+     addInstance.submit(function (e) {
+         e.preventDefault();
+        let data = {
+            "name": $('#name').val(),
+            "address": $('#address').val(),
+            "phone": $('#phone').val(),
+            "email": $('#email').val(),
+            "notes": $('#notes').val()
+        };
+        $.ajax({
+            url: "{{ url_for('people.customer_add') }}",
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                jQuery(".modal-body.text-center > p").text(data.message);
+                if (data.status) {
+                    jQuery('#modal-form').modal('toggle');
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Success!');
+                    jQuery('#delay-modal').modal('show');
+                } else {
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                    jQuery('#delay-modal').modal('show');
+                }
+            },
+            error: function(){
+                jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                jQuery(".modal-body.text-center > p").text(data.message);
+            }
+        }).done(function () {
+            customer_table.ajax.reload();
+        });
+    });
+     })
+</script>

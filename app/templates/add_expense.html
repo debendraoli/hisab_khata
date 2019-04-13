@@ -1,0 +1,130 @@
+{% extends 'dashboard.html' %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/buttons.bootstrap4.css') }}">
+{% endblock stylesheets %}
+{% block dashboard_contents %}
+<div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="card">
+                                <div class="card-header">
+                                    <a href="#" id="add_expense"><i class="fas fa-plus"></i></a>
+                                    <a class="float-right" id="table-reload" href="#"><i class="fas fa-sync-alt"></i></a>
+                                </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="products" class="table table-striped table-bordered second" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Expense Type</th>
+                                                <th>Amount</th>
+                                                <th>Account</th>
+                                                <th>To</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/data-table.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/buttons.bootstrap4.min.js') }}"></script>
+
+<script>
+    $(function () {
+    $('#editProduct').submit(function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let data = {
+            'name': $('#product-name').val(),
+            'code': $('#product-code').val(),
+            'size': $('#product-size').val(),
+            'color': $('#product-color').val(),
+            'quantity': $('#product-quantity').val(),
+            'price': $('#product-price').val(),
+            'sold': $('#product-sold').val(),
+            'supplier': $('#product-supplier').val()
+        };
+        $.ajax({
+            url: form.attr('action'),
+            type: 'PUT',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                $('#modal-editProduct').modal('toggle');
+                $(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Product modified!');
+                $(".modal-body.text-center > p").text(data.message);
+                products_table.ajax.reload();
+                $('#delay-modal').modal('show');
+            },
+            error: function(data){
+
+            }
+        });
+    });
+    $('#delete-confirm-button').on('click', function (e) {
+        e.preventDefault();
+        let product_id = $('#delete-confirm-button').val();
+        $.ajax({
+            url:  '/transaction/expenses/delete/'+expense_id,
+            type : "DELETE",
+            success: function (data) {
+                products_table.ajax.reload();
+                $("#modal-deleteProduct").modal("toggle");
+                $(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Product deleted!');
+                $(".modal-body.text-center > p").text('Product has been deleted successfully..');
+                $('#delay-modal').modal('show');
+            },
+            error: function (data) {
+                alert('ajax failed');
+            },
+        });
+    });
+
+    $('#modal-editProduct').on('show.bs.modal', function(e) {
+        let product_id = $(e.relatedTarget).data('product-id');
+        let product_name = $(e.relatedTarget).data('product-name');
+        $('#editProduct').attr('action', '/item/edit/'+product_id);
+        $('#modal-editProduct .modal-title').text('Edit product '+product_name);
+        $.ajax({
+            url: '/item/'+product_id,
+            type: 'POST',
+            success: function (data) {
+                $('#product-supplier').empty();
+                $.each(data.suppliers, function (key, val) {
+                     $('#product-supplier').append('<option value="'+ val.id +'">'+ val.name +'</option>')
+                 });
+                 $.each(data.product, function (key, val) {
+                     $('#product-' + key).val(val);
+                });
+            }
+        })
+    });
+
+    $('#modal-deleteProduct').on('show.bs.modal', function(e) {
+        let product_id = $(e.relatedTarget).data('product-id');
+        let product_name = $(e.relatedTarget).data('product-name');
+        $('#delete-confirm-button').val(product_id);
+        $('#modal-deleteProduct p:first').text('Do you want to delete product '+product_name+'?')
+    });
+    $('#table-reload').on('click', function () {
+        products_table.ajax.reload();
+    })
+
+});
+
+
+</script>
+{% endblock scripts %}

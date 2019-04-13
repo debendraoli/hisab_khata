@@ -1,0 +1,55 @@
+<form id="form">
+<div class="form-group row">
+<div class="col">
+<label for="from">From<span class="text-danger ml-2">*</span></label>
+<select id="from" class="form-control custom-select">
+<option value="">Select from</option>
+    {% for warehouse in warehouses %}
+<option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+    {% endfor %}
+</select>
+</div>
+<div class="col">
+<label for="to">To</label>
+<select id="to" class="form-control custom-select">
+</select>
+</div>
+</div>
+<div class="form-group">
+    <label for="notes">Note</label>
+    <textarea id="notes" class="form-control"></textarea>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+<script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+<script>
+    let form = jQuery('#form');
+    form.parsley();
+    let t_from = jQuery('#from');
+    let t_to = jQuery('#to');
+    t_from.change(function () {
+        $.ajax({
+            url: '/inventory/transfer/add/from/' + t_from.val(),
+            type: 'POST',
+            data: {},
+            success: function (data) {
+                t_to.empty();
+                $.each(data, function (key, val) {
+                    t_to.append('<option value="' + val.id + '">' + val.name + '</option>');
+                })
+            }
+        })
+    });
+
+    form.submit(function (e) {
+        e.preventDefault();
+        let notes = jQuery('#notes').val();
+        localStorage.setItem("transfer_notes", notes);
+        localStorage.setItem("t_from", t_from.val());
+        localStorage.setItem("t_to", t_to.val());
+        location.replace('/inventory/transfer/'+ t_from.val() + '/' +  t_to.val());
+    })
+</script>

@@ -1,0 +1,112 @@
+{% extends '/dashboard.html' %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/buttons.bootstrap4.css') }}">
+{% endblock stylesheets %}
+{% block dashboard_contents %}
+<div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="card">
+                                <div class="card-header">
+                                    <a class="float-right" id="table-reload" href="#"><i class="fas fa-sync-alt"></i></a>
+                                </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="payment" class="table table-striped table-bordered second" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Ref</th>
+                                                <th>Name</th>
+                                                <th>Order Ref.</th>
+                                                <th>Method</th>
+                                                <th>Quantity</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/buttons.bootstrap4.min.js') }}"></script>
+
+<script>
+    $(function () {
+        'use strict';
+            let payment_table = $('#payment').DataTable({
+            "ajax": {
+                "url": "{{ url_for('sale.payment') }}",
+            },
+            "columns": [
+                {
+                    "data": "ref",
+                    "orderable": false,
+                },
+
+                {
+                    "data": "name",
+                    "searchable": false
+                },
+
+                {
+                    "data": "order_ref",
+                    "orderable": false,
+                    "render": function ( data, type, row ) {
+                    return '<a href="/order/view/'+ data +']/">'+data+'</a>';
+                    }
+                },
+
+                {
+                    "data": "method",
+                    "searchable": false
+                },
+
+                {
+                    "data": "quantity",
+                    "searchable": false
+                },
+
+                {
+                    "data": "amount",
+                    "searchable": false
+                },
+
+                {
+                    "data": "status",
+                    "orderable": true,
+                    "searchable": false,
+                    render: function (data) {
+                        if (data) {
+                            return '<span class="badge badge-pill badge-success">Paid</div>';
+                        } else {
+                            return '<span class="badge badge-pill badge-danger">Due</div>';
+                        }
+                    }
+                },
+                {
+                    "data": "date",
+                    "orderable": true,
+                    "searchable": false
+                },
+        ],
+                "initComplete": function(settings, json) {
+                    payment_table.buttons().container()
+                .appendTo('#payment_wrapper .col-md-6:eq(0)');
+                }
+            });
+});
+
+
+</script>
+{% endblock scripts %}

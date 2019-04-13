@@ -1,0 +1,75 @@
+<form id="addInstance" action="">
+<div class="form-group row">
+<div class="col">
+<label class="form-control-label">Account<span class="text-danger ml-2">*</span></label>
+    <select id="account" class="form-control custom-select">
+        {% for account in accounts %}
+        <option value="{{ account.id }}">{{ account.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="col">
+<label class="form-control-label">Amount<span class="text-danger ml-2">*</span></label>
+<input id="amount" type="number" value="" class="form-control" required>
+</div>
+    </div>
+<div class="form-group">
+<label class="form-control-label">Note</label>
+    <textarea id="notes" class="form-control" rows="4" required></textarea>
+</div>
+
+<div class="modal-footer">
+<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+
+<script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+<script>
+    jQuery(function () {
+    let addInstance = jQuery('#addInstance');
+    addInstance.parsley();
+    Parsley.addValidator('code', {
+                validateString: function(value, field) {
+                    let xhr = jQuery.post('/eeeee/' + field + '/' + value);
+                    return xhr.then(function (json) {
+                        if (!json.status) {
+                            return jQuery.Deferred().reject(json.message)
+                        }
+                    })
+                },
+                messages: {en: 'Failed to check warehouse code.'}
+            });
+     addInstance.submit(function (e) {
+         e.preventDefault();
+        let data = {
+            "account": $('#account').val(),
+            "amount": $('#amount').val(),
+            "notes": $('#notes').text()
+        };
+        $.ajax({
+            url: "{{ url_for('transaction.deposit_add') }}",
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                jQuery(".modal-body.text-center > p").text(data.message);
+                if (data.status) {
+                    jQuery('#modal-form').modal('toggle');
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Amount deposited!');
+                    jQuery('#delay-modal').modal('show');
+                } else {
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                    jQuery('#delay-modal').modal('show');
+                }
+            },
+            error: function(){
+                jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+            }
+        }).done(function () {
+            deposit_table.ajax.reload()
+        });
+    });
+     })
+</script>

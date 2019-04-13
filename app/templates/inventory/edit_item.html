@@ -1,0 +1,99 @@
+<form id="editInstance">
+<div class="form-group row">
+<div class="col">
+<label for="name">Name<span class="text-danger ml-2">*</span></label>
+<input id="name" type="text" value="{{ data.name }}" class="form-control" required>
+</div>
+<div class="col">
+<label id="color">Color</label>
+<input id="color" type="text" value="{{ data.color }}" class="form-control">
+</div>
+<div class="col">
+<label for="size">Size</label>
+<input id="size" type="text" value="{{ data.size }}" class="form-control">
+</div>
+</div>
+
+<div class="form-group row">
+<div class="col">
+<label for="cost_price">Cost Price<span class="text-danger ml-2">*</span></label>
+<input id="cost_price" type="number" value="{{ data.cost_price }}" class="form-control" required>
+</div>
+
+    <div class="col">
+<label for="wholesale_price">Wholesale Price<span class="text-danger ml-2">*</span></label>
+<input id="wholesale_price" type="number" value="{{ data.wholesale_price }}" class="form-control" required>
+</div>
+
+     <div class="col">
+<label for="retail_price">Retail Price<span class="text-danger ml-2">*</span></label>
+<input id="retail_price" type="number" value="{{ data.retail_price }}" class="form-control" required>
+</div>
+</div>
+<div class="form-group row">
+<div class="col">
+<label for="quantity">Quantity<span class="text-danger ml-2">*</span></label>
+<input id="quantity" type="number" value="{{ data.quantity }}" class="form-control" required>
+</div>
+<div class="col">
+<label for="supplier">Supplier</label>
+<select id="supplier" class="custom-select form-control">
+    {% for supplier in suppliers %}
+        <option value="{{ supplier.id }}"{% if supplier.id == data.supplier_id %} selected="selected"{% endif %}>{{ supplier.name }}</option>
+    {% endfor %}
+</select>
+</div>
+</div>
+<div class="form-group">
+    <label for="notes">Notes</label>
+    <textarea id="notes" class="form-control">{{ data.notes }}</textarea>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+
+<script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+<script>
+    editInstance = jQuery('#editInstance');
+    editInstance.parsley();
+     editInstance.submit(function (e) {
+         editInstance.parsley().validate();
+        let data = {
+            'name': $('#name').val(),
+            'size': $('#size').val(),
+            'color': $('#color').val(),
+            'quantity': $('#quantity').val(),
+            'cost_price': $('#cost_price').val(),
+            'wholesale_price': $('#wholesale_price').val(),
+            'retail_price': $('#retail_price').val(),
+            'supplier': $('#supplier').val(),
+            'notes': $('#notes').text()
+        };
+        $.ajax({
+            url: "{{ url_for('inventory.item_edit', item_id=data.id) }}",
+            type: 'PUT',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                jQuery(".modal-body.text-center > p").text(data.message);
+                if (data.status === true) {
+                    jQuery('#modal-form').modal('toggle');
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Product details modified!');
+                    jQuery('#delay-modal').modal('show');
+                } else {
+                    jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                    jQuery('#delay-modal').modal('show');
+                }
+            },
+            error: function(){
+                jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+            }
+        }).done(function () {
+            products_table.ajax.reload();
+        });
+        e.preventDefault();
+    });
+</script>

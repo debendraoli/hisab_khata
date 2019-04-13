@@ -1,0 +1,14 @@
+[Unit]
+Description=uWsgi instance to serve necommerce app.
+After=network.target
+
+[Service]
+User=necommerce
+Group=www-data
+WorkingDirectory=/home/necommerce/necommerce.online
+Environment="PATH=/home/necommerce/necommerce.online/venv/bin"
+ExecStart=/home/necommerce/necommerce.online/venv/bin/uwsgi --ini necommerce.ini
+
+[Install]
+WantedBy=multi-user.target
+

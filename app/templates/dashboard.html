@@ -1,0 +1,530 @@
+{% extends 'layout.html' %}
+{% block contents %}
+    <div class="dashboard-main-wrapper">
+         <div class="dashboard-header">
+            <nav class="navbar navbar-expand-lg bg-white fixed-top">
+                <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">neCommerce</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse " id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto navbar-right-top">
+                        <li class="nav-item">
+                            <div id="custom-search" class="top-search-bar">
+                                <input class="form-control" type="text" placeholder="Search..">
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown notification">
+                            <a class="nav-link nav-icons" href="#" id="navbarDropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fw fa-bell"></i> {% if current_user.notification %}<span class="indicator"></span>{% endif %}</a>
+                            <ul class="dropdown-menu dropdown-menu-right notification-dropdown">
+                                <li>
+                                    <div class="notification-title">Notification</div>
+                                    <div class="notification-list">
+                                        <div class="list-group">
+                                            <a href="#" class="list-group-item list-group-item-action active">
+                                                <div class="notification-info">
+                                                    <div class="notification-list-user-img"><img src="{{ url_for('static', filename='images/avatar-2.jpg') }}" alt="" class="user-avatar-md rounded-circle"></div>
+                                                    {% for notification in current_user.notifications %}
+                                                    <div class="notification-list-user-block">{% if notification.from_user %}<span class="notification-list-user-name">{{ notification.from_user }}</span>{% endif %}{{ notification.content }}.
+                                                        <div class="notification-date">{{ notification.datetime }}</div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="list-footer"> <a href="#">View all notifications</a></div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown connection">
+                            <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fas fa-fw fa-th"></i> </a>
+                            <ul class="dropdown-menu dropdown-menu-right connection-dropdown">
+                                <li class="connection-list">
+                                    <div class="row">
+                                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 ">
+                                            <a href="#" class="connection-item"><img src="" alt="" > <span>Test 1</span></a>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 ">
+                                            <a href="#" class="connection-item"><img src="" alt="" > <span>Test 2</span></a>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 ">
+                                            <a href="#" class="connection-item"><img src="" alt="" > <span>Test 3</span></a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="conntection-footer"><a href="#">More</a></div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown nav-user">
+                            <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="{{ url_for('static', filename='images/avatar-1.jpg') }}" alt="" class="user-avatar-md rounded-circle"></a>
+                            <div class="dropdown-menu dropdown-menu-right nav-user-dropdown" aria-labelledby="navbarDropdownMenuLink2">
+                                <div class="nav-user-info">
+                                    <h5 class="mb-0 text-white nav-user-name">{{ current_user.first_name }}</h5>
+                                    {#<span class="status"></span><span class="ml-2">Available</span>#}
+                                </div>
+                                <a class="dropdown-item" href="#"><i class="fas fa-user mr-2"></i>Account</a>
+                                <a class="dropdown-item" href=""><i class="fas fa-cog mr-2"></i>Setting</a>
+                                <a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-power-off mr-2"></i>Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+
+      <div class="nav-left-sidebar sidebar-dark">
+            <div class="menu-list">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <a class="d-xl-none d-lg-none" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}"><i class="fa fa-tachometer-alt"></i>Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.purchase') }}"><i class="fa fa-tachometer-alt"></i>Purchase</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#inventory" aria-controls="inventory"><i class="fa fa-fw fa-barcode"></i>Inventory</a>
+                                <div id="inventory" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('inventory.item') }}">Items</a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('inventory.transfer') }}">Transfer</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#sales" aria-controls="sales"><i class="fa fa-fw fa-shopping-cart"></i>Sales</a>
+                                <div id="sales" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('sale.order') }}">Orders</a>
+                                            <a class="nav-link" href="{{ url_for('sale.invoice') }}">Invoices</a>
+                                            <a class="nav-link" href="{{ url_for('sale.payment') }}">Payments</a>
+                                            <a class="nav-link" href="{{ url_for('sale.shipment') }}">Shipments</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#peoples" aria-controls="peoples"><i class="fa fa-fw fa-users"></i>Peoples</a>
+                                <div id="peoples" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('people.supplier') }}">Suppliers</a>
+                                            <a class="nav-link" href="{{ url_for('people.customer') }}">Customers</a>
+                                            <a class="nav-link" href="{{ url_for('people.staff') }}">Users</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#trans" aria-controls="inventory"><i class="fa fa-fw fa-money-bill-alt"></i>Transactions</a>
+                                <div id="trans" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('transaction.deposit') }}">Deposit</a>
+                                            <a class="nav-link" href="{{ url_for('transaction.expense') }}">Expense</a>
+                                            <a class="nav-link" href="{{ url_for('transaction.transfer') }}">Transfer</a>
+                                            <a class="nav-link" href="{{ url_for('transaction.view') }}">View Transactions</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#reports" aria-controls="inventory"><i class="fa fa-fw fa-chart-bar"></i>Reports</a>
+                                <div id="reports" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('report.inventory') }}">Inventory Reports</a>
+                                            <a class="nav-link" href="{{ url_for('report.expense') }}">Expense Reports</a>
+                                            <a class="nav-link" href="{{ url_for('report.purchase') }}">Purchase Reports</a>
+                                            <a class="nav-link" href="{{ url_for('report.sales') }}">Sales Reports</a>
+                                            <a class="nav-link" href="{{ url_for('report.income') }}">Income Reports</a>
+                                            <a class="nav-link" href="{{ url_for('report.income_vs_expense') }}">Income VS Expense Reports</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#setting" aria-controls="inventory"><i class="fa fa-fw fa-cogs"></i>Settings</a>
+                                <div id="setting" class="collapse submenu" style="">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ url_for('setting.warehouse') }}">Warehouse</a>
+                                            <a class="nav-link" href="{{ url_for('setting.bank_account') }}">Bank Accounts</a>
+                                            <a class="nav-link" href="{{ url_for('setting.information') }}">Information</a>
+                                            <a class="nav-link" href="{{ url_for('setting.category') }}">Category</a>
+                                            <a class="nav-link" href="{{ url_for('setting.backup') }}">Backup</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+    <div class="dashboard-wrapper">
+            <div class="container-fluid dashboard-content">
+
+
+    <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h3 class="mb-2">{{ title }}</h3>
+                            <p class="pageheader-text"></p>
+    {% block dashboard_breadcrumbs %}{% endblock dashboard_breadcrumbs %}
+
+                        </div>
+                    </div>
+                </div>
+    {% block dashboard_contents %}
+        <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                    <div class="card border-3 border-top border-top-primary">
+                                <div class="card-body">
+                                    <h5 class="text-muted">Sales</h5>
+                                    <div class="metric-value d-inline-block">
+                                        <h1 class="mb-1">{{ data.sales.month }}</h1>
+                                    </div>
+                                    {% if data.sales.month %}
+                                    <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                                    {% with sales_monthly_percent = data.sales.month / data.sales.total * 100 %}
+                                        <span class="icon-circle-small icon-box-xs text-success bg-{% if sales_monthly_percent > 0 %}success-light"><i class="fa fa-fw fa-arrow-up{% else %}danger-light"><i class="fa fa-fw fa-arrow-down{% endif %}"></i></span><span class="ml-1">{{ sales_monthly_percent }}%</span>
+                                    {% endwith %}
+                                        </div>
+                                        {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                    <div class="card border-3 border-top border-top-primary">
+                                <div class="card-body">
+                                    <h5 class="text-muted">Revenue</h5>
+                                    <div class="metric-value d-inline-block">
+                                        <h1 class="mb-1">{{ data.revenue.month }}</h1>
+                                    </div>
+                                    {% if data.revenue.month %}
+                                    {% with revenue_monthly_percent = data.revenue.month / data.revenue.total * 100 %}
+                                        <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                                        <span class="icon-circle-small icon-box-xs text-success bg-{% if revenue_monthly_percent > 0 %}success-light"><i class="fa fa-fw fa-arrow-up{% else %}danger-light"><i class="fa fa-fw fa-arrow-down{% endif %}"></i></span><span class="ml-1">{{ revenue_monthly_percent }}%</span>
+                                    {% endwith %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                    <div class="card border-3 border-top border-top-primary">
+                                <div class="card-body">
+                                    <h5 class="text-muted">Profit</h5>
+                                    <div class="metric-value d-inline-block">
+                                        <h1 class="mb-1">{{ data.profit.month }}</h1>
+                                    </div>
+                                {% if data.profit.month %}
+                                    {% with profit_monthly_percent = data.profit.month / data.profit.total * 100 %}
+                                        <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                                        <span class="icon-circle-small icon-box-xs text-success bg-{% if profit_monthly_percent > 0 %}success-light"><i class="fa fa-fw fa-arrow-up{% else %}danger-light"><i class="fa fa-fw fa-arrow-down{% endif %}"></i></span><span class="ml-1">{{ profit_monthly_percent }}%</span>
+                                    {% endwith %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                    <div class="card border-3 border-top border-top-primary">
+                                <div class="card-body">
+                                    <h5 class="text-muted">Value of stocks</h5>
+                                    <div class="metric-value d-inline-block">
+                                        <h1 class="mb-1">{{ data.value_of_stock }}</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-inline-block">
+                                        <h5 class="text-muted">Customer</h5>
+                                        <h2 class="mb-0"> {{ data.people.customer }}</h2>
+                                    </div>
+                                    <div class="float-right icon-circle-medium  icon-box-lg  bg-primary-light mt-1">
+                                        <i class="fa fa-user fa-fw fa-sm text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-inline-block">
+                                        <h5 class="text-muted">Supplier</h5>
+                                        <h2 class="mb-0"> {{ data.people.supplier }}</h2>
+                                    </div>
+                                    <div class="float-right icon-circle-medium  icon-box-lg  bg-primary-light mt-1">
+                                        <i class="fa fa-user fa-fw fa-sm text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-inline-block">
+                                        <h5 class="text-muted">Staff</h5>
+                                        <h2 class="mb-0"> {{ data.people.staff }}</h2>
+                                    </div>
+                                    <div class="float-right icon-circle-medium  icon-box-lg  bg-primary-light mt-1">
+                                        <i class="fa fa-user fa-fw fa-sm text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-inline-block">
+                                        <h5 class="text-muted">Staff</h5>
+                                        <h2 class="mb-0"> {{ data.people.staff }}</h2>
+                                    </div>
+                                    <div class="float-right icon-circle-medium  icon-box-lg  bg-primary-light mt-1">
+                                        <i class="fa fa-user fa-fw fa-sm text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        </div>
+
+        <div class="row">
+                    <div class="col-xl-8 col-lg-12 col-md-8 col-sm-12 col-12">
+                        <div class="card">
+                            <h5 class="card-header">Revenue</h5>
+                            <div class="card-body">
+                                <canvas id="revenue" width="400" height="150"></canvas>
+                            </div>
+                            <div class="card-body border-top">
+                                <div class="row">
+                                    <div class="offset-xl-1 col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 p-3">
+                                        <h4> Today's Earning: {% if data.revenue.today %}{{ data.revenue.today }}
+                                        {% else %}0{% endif %}</h4>
+                                        <p></p>
+                                    </div>
+                                    <div class="offset-xl-1 col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 p-3">
+                                        <h2 class="font-weight-normal mb-3"><span>123</span>                                                    </h2>
+                                        <div class="mb-0 mt-3 legend-item">
+                                            <span class="fa-xs text-primary mr-1 legend-title "><i class="fa fa-fw fa-square-full"></i></span>
+                                            <span class="legend-text">Current Week</span></div>
+                                    </div>
+                                    <div class="offset-xl-1 col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 p-3">
+                                        <h2 class="font-weight-normal mb-3">
+                                                        <span>$59,567</span>
+                                                    </h2>
+                                        <div class="text-muted mb-0 mt-3 legend-item"> <span class="fa-xs text-secondary mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span><span class="legend-text">Previous Week</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+        <div class="col-xl-4 col-lg-12 col-md-4 col-sm-12 col-12">
+                        <div class="card">
+                            <h5 class="card-header">Total Sale</h5>
+                            <div class="card-body">
+                                <canvas id="total-sale" width="220" height="155"></canvas>
+                                <div class="chart-widget-list">
+                                    <p>
+                                        <span class="fa-xs text-primary mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span><span class="legend-text"> Direct</span>
+                                        <span class="float-right">$300.56</span>
+                                    </p>
+                                    <p>
+                                        <span class="fa-xs text-secondary mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span>
+                                        <span class="legend-text">Affilliate</span>
+                                        <span class="float-right">$135.18</span>
+                                    </p>
+                                    <p>
+                                        <span class="fa-xs text-brand mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span> <span class="legend-text">Sponsored</span>
+                                        <span class="float-right">$48.96</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="fa-xs text-info mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span> <span class="legend-text"> E-mail</span>
+                                        <span class="float-right">$154.02</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+        </div>
+
+
+        <div class="row">
+        <div class="col-xl-5 col-lg-6 col-md-6 col-sm-12 col-12">
+                        <div class="card">
+                            <h5 class="card-header">Account Balance</h5>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead class="bg-light">
+                                            <tr class="border-0">
+                                                <th class="border-0">Name</th>
+                                                <th class="border-0">Bank</th>
+                                                <th class="border-0">Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for account in data.account_balance %}
+                                            <tr>
+                                                <td>{{ account.name }}</td>
+                                                <td>{{ account.holder_name }}</td>
+                                                <td>{{ account.balance }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                            <tr>
+                                                <td colspan="8"><a href="#" class="btn btn-outline-light float-right">View Details</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            <div class="col-xl-7 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <h5 class="card-header" id="pro-bars">Expenses</h5>
+                    <div class="card-body">
+                        <div class="progress">
+                        <h5>Hi</h5>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+                            {% for expense in data.expenses %}
+                                {{ expense.name }}
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-{% if expense.amount <= 25 %}success{% elif expense.amount >= 26 %}info{% elif expense.amount > 50 %}warning{% elif expense.amount > 75 %}danger{% endif %}" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: {{ expense.amount / 100 * 100 }}%"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+
+<!-- dashboard sales js-->
+    <script src="{{ url_for('static', filename='libs/js/dashboard-sales.js') }}"></script>
+{% endblock dashboard_contents %}
+{% endblock contents %}
+{% block footer %}
+        </div>
+{{ super() }}
+    {% include 'snippets.html' %}
+    </div>
+    </div>
+{% endblock footer %}
+{% block scripts  %}
+    <script src="{{ url_for('static', filename='vendor/charts/charts-bundle/Chart.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/charts/charts-bundle/chartjs.js') }}"></script>
+    <script src="{{ url_for('static', filename='libs/js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/noty/noty.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/charts/sparkline/jquery.sparkline.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/charts/sparkline/spark-js.js') }}"></script>
+
+    {# <script src="{{ url_for('static', filename='vendor/charts/sparkline/jquery.sparkline.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/charts/sparkline/spark-js.js') }}"></script>
+     <!-- dashboard sales js-->
+    <script src="{{ url_for('static', filename='libs/js/dashboard-sales.js') }}"></script>#}
+
+
+    <script>
+        $(function()
+        {
+            let current_path = "{{ request.path }}";
+            if (current_path === window.location.pathname) {
+                $("a[href='" + current_path + "']").prop("href", "#").addClass("nav-link active");
+            }
+
+            $('.progress .progress-bar').css("width",
+                function () {
+                    return $(this).attr("aria-valuenow") + "%";
+                }
+            )
+        });
+        function modalAjax(url, type='POST') {
+            let modal = jQuery('#modal-form');
+            let modal_body = jQuery('#modal-form .modal-body');
+            jQuery('#modal-form .modal-title');
+		modal_body.html('<div style="text-align:center;margin-top:200px;"><img src="{{ url_for('static', filename='images/preloader.gif') }}" /></div>');
+            modal.modal('show', {backdrop: 'true'});
+            $.ajax({
+                url: url,
+                type: type,
+                success: function (data) {
+                    modal_body.html(data);
+                }
+            });
+           modal.on('hidden.bs.modal', function(){
+               modal_body.empty();
+            })
+        }
+
+        function deleteAjax(url, table=null) {
+            let modal_body = jQuery('#modal-alertAjax .modal-body');
+            let modal_footer = jQuery('#modal-alertAjax .modal-footer');
+            jQuery('#modal-alertAjax').modal('show', {backdrop: 'true'});
+            jQuery('#modal-alertAjax .modal-title').text('Delete');
+            modal_body.html('<p>Do you want to really delete?</p>');
+            modal_footer.html('<button type="button" class="btn btn-shadow" data-dismiss="modal">Close</button>' +
+                '<button id="delete-confirm" type="button" class="btn btn-danger" value="">Delete</button>');
+            jQuery('#delete-confirm').on('click', function (e) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    success: function (data) {
+                        if (data.status) {
+                            jQuery('#modal-alertAjax').modal('toggle');
+                            jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Deleted');
+                            jQuery(".modal-body.text-center > p").text(data.message);
+                            jQuery('#delay-modal').modal('show');
+                        } else {
+                            jQuery("#modal-alertAjax").modal("toggle");
+                            jQuery(".section-title.mt-5.mb-2 > h2.text-gradient-01").text('Error');
+                            jQuery(".modal-body.text-center > p").text(data.message);
+                            jQuery('#delay-modal').modal('show');
+                        }
+                    }
+
+                }).done(function () {
+                    reload_table(table);
+                });
+            }) // end onclick event
+        }
+
+        function reload_table(table) {
+            table.ajax.reload();
+        }
+    </script>
+{% endblock scripts %}

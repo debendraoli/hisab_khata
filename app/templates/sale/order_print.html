@@ -1,0 +1,116 @@
+{% extends 'dashboard.html' %}
+{% block stylesheets %}
+    <style>@media print{@page{margin:0;}body{margin:1.6cm;}
+}</style>
+{% endblock %}
+{% block contents %}
+<div class="row">
+    <div class="offset-xl-2 col-xl-8 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-header p-4">
+                                     <a class="pt-2 d-inline-block" href="/">{{ current_user.company.name }}</a>
+
+                                    <div class="float-right"> <h3 class="mb-0">Order: #{{ data.ref }}</h3>
+                                    Date: {{ data.datetime }}</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-sm-6">
+                                            <h5 class="mb-3">From:</h5>
+                                            <h3 class="text-dark mb-1">{{ current_user.company.name }}</h3>
+
+                                            <div>{{ current_user.company.address }}</div>
+                                            <div>Email: {{ current_user.company.email }}</div>
+                                            <div>Phone: {{ current_user.company.phone }}</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <h5 class="mb-3">To:</h5>
+                                            <h3 class="text-dark mb-1">{{ data.customer.name }}</h3>
+                                            <div>Address: {{ data.customer.address }}</div>
+                                            <div>Email: {{ data.customer.email }}</div>
+                                            <div>Phone: {{ data.customer.phone }}3</div>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive-sm">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="center">#</th>
+                                                    <th>Item</th>
+                                                    <th>Description</th>
+                                                    <th class="right">Unit Cost</th>
+                                                    <th class="center">Qty</th>
+                                                    <th class="right">Discount</th>
+                                                    <th class="right">VAT</th>
+                                                    <th class="right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for item in items %}
+                                                <tr>
+                                                    <td class="center">{{ loop.index }}</td>
+                                                    <td class="left strong">{{ item.item.name }}</td>
+                                                    <td class="left">Color: {{ item.item.color }}, Size: {{ item.item.color }}</td>
+                                                {% with item_price = item.item.wholesale_price if item.is_wholesale  else item.item.retail_price %}
+                                                    <td class="right">{{ item_price }}</td>
+                                                    <td class="center">{{ item.quantity }}</td>
+                                                    <td class="right">{{ item_price / item.discount.percent * 100 if item.discount.percent else 0 }}</td>
+                                                    <td class="right">{{ item_price / item.tax.percent * 100 if item.tax.percent else 0 }}</td>
+                                                    <td class="right">{{ item_price * item.quantity }}</td>
+                                                    {% endwith %}
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-sm-5">
+                                        </div>
+                                        <div class="col-lg-4 col-sm-5 ml-auto">
+                                            <table class="table table-clear">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Subtotal</strong>
+                                                        </td>
+                                                        <td class="right">{{ data.subtotal }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Discount ({{ data.discount_percent }}%)</strong>
+                                                        </td>
+                                                        <td class="right">{{ data.discount_total }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">VAT ({{ data.tax_percent }}%)</strong>
+                                                        </td>
+                                                        <td class="right">{{ data.vat_total }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Total</strong>
+                                                        </td>
+                                                        <td class="right">
+                                                            <strong class="text-dark">{{ data.total }}</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <p class="mb-0">2983 Glenview Drive Corpus Christi, TX 78476</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    <script>
+    print()
+    </script>
+{% endblock %}

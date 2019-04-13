@@ -1,0 +1,155 @@
+{% extends 'dashboard.html' %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/fc-3.2.5/fh-3.1.4/r-2.2.2/sc-1.5.0/datatables.min.css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/buttons.bootstrap4.css') }}">
+{% endblock stylesheets %}
+{% block dashboard_contents %}
+<div class="container">
+                            <div class="card">
+                                <div class="card-header p-3">
+                                     <a class="pt-2 d-inline-block" href="#">Uptech</a>
+                                    <div class="float-right"><h3 class="mb-0">Invoice #1</h3>
+                                    Date: 3 Dec, 2020</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-1">
+                                        <div class="col-sm-6">
+                                            <h5 class="mb-3">From:</h5>
+                                            <h3 class="text-dark mb-1">Company Name</h3>
+                                            <div>Address</div>
+                                            <div>Email: test@mail.com</div>
+                                            <div>Phone: +573-282-9117</div>
+                                            <div class=""></div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <h5 class="mb-3">To:</h5>
+                                            <h3 class="text-dark mb-1">Customer Name</h3>
+                                            <div>Address</div>
+                                            <div>Email: email@</div>
+                                            <div>Phone: 123</div>
+                                        </div>
+                                    </div>
+                                    <form>
+                                        <input type="text">
+                                    </form>
+                                    <div class="table-responsive-sm">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="center">#</th>
+                                                    <th>Item</th>
+                                                    <th>Description</th>
+                                                    <th class="right">Unit Cost</th>
+                                                    <th class="center">Qty</th>
+                                                    <th class="center">Discount</th>
+                                                    <th class="center">Vat</th>
+                                                    <th class="right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="center">1</td>
+                                                    <td class="left strong">product.name</td>
+                                                    <td class="left">product.desc</td>
+                                                    <td class="right">10</td>
+                                                    <td class="center"><div class="quantity">
+                                                            <input type="number" min="1" step="1" value="1">
+                                                </div></td>
+                                                    <td class="center"><div class="quantity">
+                                                            <input type="number" min="1" step="1" value="1">
+                                                </div></td>
+                                                    <td class="center col-xs-2">
+                                                        <div class="quantity">
+                                                            <input type="number" max="100" min="1" step="1" value="1">
+                                                </div>
+                                                    </td>
+                                                    <td class="right">$5</td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-sm-5">
+                                        </div>
+                                        <div class="col-lg-4 col-sm-5 ml-auto">
+                                            <table class="table table-clear">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Subtotal</strong>
+                                                        </td>
+                                                        <td class="right">$28,809,00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Discount (20%)</strong>
+                                                        </td>
+                                                        <td class="right">$5,761,00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">VAT (10%)</strong>
+                                                        </td>
+                                                        <td class="right">$2,304,00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Total</strong>
+                                                        </td>
+                                                        <td class="right">
+                                                            <strong class="text-dark">$20,744,00</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <p class="mb-0">Address</p>
+                                </div>
+                            </div>
+                        </div>
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+    <script>
+        jQuery('<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>').insertAfter('.quantity input');
+        jQuery('.quantity').each(function() {
+            var spinner = jQuery(this),
+                input = spinner.find('input[type="number"]'),
+                btnUp = spinner.find('.quantity-up'),
+                btnDown = spinner.find('.quantity-down'),
+                min = input.attr('min'),
+                max = input.attr('max');
+
+            btnUp.click(function() {
+                var oldValue = parseFloat(input.val());
+                if (oldValue >= max) {
+                    var newVal = oldValue;
+                } else {
+                    var newVal = oldValue + 1;
+                }
+                spinner.find("input").val(newVal);
+                spinner.find("input").trigger("change");
+                let unit_cost = spinner.closest('tr').find('td:nth-child(4)').text();
+                spinner.closest('tr').find('td:last').text(newVal * unit_cost);
+            });
+
+            btnDown.click(function() {
+                var oldValue = parseFloat(input.val());
+                if (oldValue <= min) {
+                    var newVal = oldValue;
+                } else {
+                    var newVal = oldValue - 1;
+                }
+                spinner.find("input").val(newVal);
+                spinner.find("input").trigger("change");
+            });
+
+        });
+        </script>
+{% endblock %}
+

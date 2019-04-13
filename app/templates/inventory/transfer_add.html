@@ -1,0 +1,200 @@
+{% extends 'dashboard.html' %}
+{% block dashboard_contents %}
+<div class="card">
+<h4 class="card-header">Create Invoice</h4>
+<div class="card-body">
+<form id="form">
+    <div class="form-row">
+    <div class="col-3">
+<label for="products">Product</label>
+<select id="products" class="form-control" required>
+    {% for product in products %}
+<option value="{{ product.id }}" data-price="{{ product.cost_price }}"
+        data-color="{{ product.color }}" data-size="{{ product.size }}">{{ product.name }}</option>
+    {% endfor %}
+</select>
+    </div>
+    <div class="col-2">
+        <label for="quantity">Quantity</label>
+        <input id="quantity" type="number" class="form-control" required>
+    </div>
+</div>
+<button type="submit" class="btn btn-space btn-primary">Add</button>
+</form>
+    <div class="table-responsive-sm">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="center">#</th>
+                                                    <th>Item</th>
+                                                    <th>Description</th>
+                                                    <th class="right">Unit Cost</th>
+                                                    <th class="center">Qty</th>
+                                                    <th class="right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody><tr></tr></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-sm-5">
+                                        </div>
+                                        <div class="col-lg-4 col-sm-5 ml-auto">
+                                            <table class="table table-clear">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Subtotal</strong>
+                                                        </td>
+                                                        <td id="subtotal" class="right">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="left">
+                                                            <strong class="text-dark">Total</strong>
+                                                        </td>
+                                                        <td class="right">
+                                                            <strong class="text-dark" id="total">0</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            <div class="text-right">
+                                            <div class="col col-sm-10 col-lg-9 offset-sm-1 offset-lg-3">
+                                                <a class="btn disabled btn-space btn-primary" id="transfer-button" href="#">Transfer</a>
+                                            </div>
+                                        </div>
+                                <div class="card-footer bg-white">
+                                    <p class="mb-0">Address</p>
+                                </div>
+                            </div>
+{% endblock dashboard_contents %}
+{% block scripts %}
+{{ super() }}
+    <script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+    <script>
+    jQuery(function () {
+    let form = $('#form');
+    form.parsley();
+        var last_row_num = 1;
+            form.submit(function (e) {
+                e.preventDefault();
+                var subtotal = parseInt(jQuery('#subtotal').text());
+                var product = jQuery('#products option');
+                var product_name = jQuery('#products option:selected').text();
+                var price = product.data('price');
+                var quantity = jQuery('#quantity').val();
+                var description = 'Color: ' + product.data('color')+', Size: ' + product.data('size');
+                let new_tr = '<tr><td class="center"></td><td class="left strong"></td><td class="left"></td><td class="right"></td> <td class="center"><div class="quantity"><input type="number" step="1" value="1"></div></td><td class="right"></td></tr>';
+                jQuery('table.table-striped tr:last').after(new_tr);
+                jQuery('table.table-striped tr:last').find('td:nth-child(1)').text(last_row_num);
+                jQuery('table.table-striped tr:last').find('td:nth-child(2)').text(product_name);
+                jQuery('table.table-striped tr:last').find('td:nth-child(3)').text(description);
+                jQuery('table.table-striped tr:last').find('td:nth-child(4)').text(price);
+                jQuery('table.table-striped tr:last').find('td:nth-child(4) input').val(quantity);
+                jQuery('table.table-striped tr:last').find('td:last').text(price*quantity);
+                jQuery('#subtotal').text(price+subtotal);
+                jQuery('#total').text(subtotal+price);
+                if (last_row_num === 1) {
+                    jQuery('a.disabled').removeClass('disabled');
+                }
+                last_row_num++;
+
+                jQuery('<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>').insertAfter('.quantity input');
+                jQuery('.quantity').each(function(e) {
+                    var spinner = jQuery(this),
+                    input = spinner.find('input[type="number"]'),
+                    btnUp = spinner.find('.quantity-up'),
+                    btnDown = spinner.find('.quantity-down'),
+                    min = input.attr('min'),
+                    max = input.attr('max');
+                btnUp.click(function () {
+                    var oldValue = parseFloat(input.val());
+                    if (oldValue >= max) {
+                        var newVal = oldValue;
+                    } else {
+                        var newVal = oldValue + 1;
+                    }
+                    spinner.find("input").val(newVal);
+                    spinner.find("input").trigger("change");
+                    let unit_cost = spinner.closest('tr').find('td:nth-child(4)').text();
+                    spinner.closest('tr').find('td:last').text(newVal * unit_cost);
+                    jQuery('#subtotal').text(subtotal + newVal * unit_cost);
+                    jQuery('#total').text(subtotal + newVal * unit_cost);
+                    e.preventDefault();
+                });
+
+                btnDown.click(function () {
+                    var oldValue = parseFloat(input.val());
+                    if (oldValue <= min) {
+                        var newVal = oldValue;
+                    } else {
+                        var newVal = oldValue - 1;
+                    }
+                    if (newVal === 0) {
+                        spinner.closest('tr').remove()
+                    }
+                    spinner.find("input").val(newVal);
+                    spinner.find("input").trigger("change");
+                    let unit_cost = spinner.closest('tr').find('td:nth-child(4)').text();
+                    spinner.closest('tr').find('td:last').text(newVal * unit_cost);
+                    jQuery('#subtotal').text(subtotal + newVal * unit_cost);
+                    jQuery('#total').text(subtotal + newVal * unit_cost);
+                    e.preventDefault();
+                });
+            });
+                });
+
+        let transfer_button = jQuery('#transfer-button');
+        transfer_button.click(function () {
+            jQuery('table.table-striped tbody').find('tr:first').remove();
+            let data = [];
+            jQuery('table.table-striped > tbody > tr').each(function (i) {
+                    let product = $(this).find('td:nth-child(2)').text();
+                    let quantity = $(this).find('td:nth-child(5) :input').val();
+                    data[i] =
+                        {
+                            'product': product,
+                            'quantity': quantity
+                        };
+                });
+            data.push({'notes': localStorage.getItem('transfer_notes')});
+                if (Object.keys(data).length !== 0) {
+                    transfer_button.text('Transferring...');
+                    transfer_button.attr('disabled', true);
+                    jQuery('.loading').show(300);
+                    jQuery('#modal-form').modal('toggle');
+                    let t_from = localStorage.getItem('t_from');
+                    let t_to = localStorage.getItem('t_to');
+                    $.ajax({
+                        url: "/inventory/transfer/" + t_from + "/" + t_to,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify(data),
+                        success: function (data) {
+                            if (data.status) {
+                                location.replace('/inventory/transfer/');
+                            } else {
+                                $("#delay-modal .section-title.mt-5.mb-2 > h2.text-gradient-01").text('Invoice failed');
+                                $("#delay-modal .modal-body.text-center > p").text(data.message);
+                                $('#delay-modal').modal('show');
+
+                            }
+                            },
+                        complete: function () {
+                            transfer_button.attr('disabled', false);
+                            transfer_button.text('Transfer');
+                            jQuery('.loading').hide();
+
+                        }
+                    });
+                }
+            })
+
+             });
+    </script>
+{% endblock %}
+

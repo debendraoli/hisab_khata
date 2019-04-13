@@ -1,0 +1,109 @@
+{% extends 'login.html' | safe %}
+
+{% block sidebar_links %}
+    <li><a href="{{ url_for('login') }}">Sign In</a></li>
+    <li><a class="active">Sign Up</a></li>
+{% endblock %}
+{% block form %}
+    <h3>Sign Up To SalesMgr</h3>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="group material-input">
+            {% if form.name.errors %}
+            {{ form.name(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.name.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+                {% else %}
+                {{ form.name(class="form-control") }}
+        {% endif %}
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            {{ form.name.label }}
+        </div>
+
+
+    <div class="group material-input">
+            {% if form.email.errors %}
+            {{ form.email(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+                {% else %}
+                {{ form.email(class="form-control") }}
+        {% endif %}
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            {{ form.email.label }}
+        </div>
+
+
+
+        <div class="group material-input">
+            {% if form.password.errors %}
+            {{ form.password(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.password.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+                {% else %}
+                {{ form.password(class="form-control") }}
+        {% endif %}
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            {{ form.password.label }}
+        </div>
+
+
+    <div class="group material-input">
+            {% if form.confirm_password.errors %}
+            {{ form.confirm_password(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.confirm_password.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+                {% else %}
+                {{ form.confirm_password(class="form-control") }}
+        {% endif %}
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            {{ form.confirm_password.label }}
+        </div>
+
+
+        <div class="group material-input">
+            {% if form.company_code.errors %}
+            {{ form.company_code(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.company_code.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+                {% else %}
+                {{ form.company_code(class="form-control") }}
+        {% endif %}
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            {{ form.company_code.label }}
+        </div>
+
+
+        {#  <div class="row">
+                <div class="col text-left">
+                    <div class="styled-checkbox">
+
+                     </div>
+                </div>
+            </div> #}
+        <div class="sign-btn text-center">
+            {{ form.submit(class="btn btn-lg btn-gradient-01") }}
+        </div>
+    </form>
+{% endblock %}

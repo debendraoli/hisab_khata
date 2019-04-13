@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block stylesheets %}
+    <style>
+    html,
+    body {
+        height: 100%;
+    }
+    body {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    </style>
+{% endblock %}
+
+{% block contents %}
+    <div class="splash-container">
+        <div class="card">
+            <div class="card-header text-center"><a href="{{ url_for('main.index') }}">
+                <img class="logo-img" src="{{ url_for('static', filename='imagess/logo.png') }}" alt="logo"></a>
+                <span class="splash-description">Please enter your user information.</span></div>
+            <div class="card-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} text-center">
+                    {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div class="alert alert-danger text-center" style="display: none"></div>
+                <form id="login">
+                    <div class="form-group">
+                        <input class="form-control form-control-lg" id="email" type="email" placeholder="Email" autocomplete="off" data-parsley-error-message="Please enter email." required>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control form-control-lg" id="pass" type="password" placeholder="Password" data-parsley-error-message="Please enter password." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox">
+                            <input id="remember_me" class="custom-control-input" type="checkbox" checked="checked"><span class="custom-control-label">Remember Me</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Sign in</button>
+                </form>
+            </div>
+            <div class="card-footer bg-white p-0  ">
+                <div class="card-footer-item card-footer-item-bordered">
+                    <a href="#" class="footer-link">Create An Account</a></div>
+                <div class="card-footer-item card-footer-item-bordered">
+                    <a href="#" class="footer-link">Forgot Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='vendor/parsley/parsley.js') }}"></script>
+    {{ super() }}
+    <script>
+        $(function(){
+            let formInstance = $('#login');
+            formInstance.parsley();
+            formInstance.on('submit', function(e) {
+                if (formInstance.parsley().isValid()) {
+                    let data = {};
+                    let inputs = $('#login :input');
+                    inputs.each(function () {
+                        data[$(this).attr('id')] = $(this).val()
+                    });
+                    delete data[undefined];
+                    formInstance.find(':button:first').attr('disabled', true);
+                    formInstance.find(':button:first').text('Signing...');
+                    $.ajax({
+                        url: '/login/',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify(data),
+                        success: function (data) {
+                            if (data.success) {
+                                window.location.replace(data.redirect)
+                            } else {
+                                $('.alert').show(300).text(data.message);
+                                formInstance.find(':button:first').attr('disabled', false);
+                                formInstance.find(':button:first').text('Sign In');
+                            }
+                        },
+                        error: function () {
+                            $('.alert').show(300).text(data.message);
+                            formInstance.find(':button:first').attr('disabled', false);
+                            formInstance.find(':button:first').text('Sign In');
+                        }
+                    });
+                }
+                e.preventDefault();
+            });
+        });
+    </script>
+{% endblock %}
+
